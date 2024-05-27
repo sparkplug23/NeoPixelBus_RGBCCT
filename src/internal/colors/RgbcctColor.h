@@ -248,6 +248,13 @@ struct RgbcctColor : RgbColorBase
     void Lighten(uint8_t delta);
 
     // ------------------------------------------------------------------------
+    // Lighten will adjust the color by the given delta toward white
+    // NOTE: This is a simple linear change
+    // delta - (0-255) the amount to lighten the color
+    // ------------------------------------------------------------------------
+    void Variance(uint8_t delta);
+
+    // ------------------------------------------------------------------------
     // LinearBlend between two colors by the amount defined by progress variable
     // left - the color to start the blend at
     // right - the color to end the blend at
@@ -407,6 +414,43 @@ struct RgbcctColor : RgbColorBase
   void addCCTMode() {
     setColorMode(_color_mode | LIGHT_MODE_CCT);
   }
+
+
+
+  /***
+   *  Static conversions to add colours
+   * */
+
+  static RgbcctColor ApplyBrightnesstoRgbcctColour(RgbcctColor colour, uint8_t brightness) {
+    RgbcctColor colour_with_brightness;
+
+    // Apply the same brightness to all components
+    colour_with_brightness.R = (colour.R * brightness) / 255;
+    colour_with_brightness.G = (colour.G * brightness) / 255;
+    colour_with_brightness.B = (colour.B * brightness) / 255;
+    colour_with_brightness.WW = (colour.WW * brightness) / 255;
+    colour_with_brightness.WC = (colour.WC * brightness) / 255;
+
+    return colour_with_brightness;
+}
+
+
+
+  static RgbcctColor ApplyBrightnesstoRgbcctColour(RgbcctColor colour, uint8_t brightnessRGB, uint8_t brightnessCCT) {
+    RgbcctColor colour_with_brightness;
+
+    // Apply RGB brightness
+    colour_with_brightness.R = (colour.R * brightnessRGB) / 255;
+    colour_with_brightness.G = (colour.G * brightnessRGB) / 255;
+    colour_with_brightness.B = (colour.B * brightnessRGB) / 255;
+
+    // Apply CCT brightness
+    colour_with_brightness.WW = (colour.WW * brightnessCCT) / 255;
+    colour_with_brightness.WC = (colour.WC * brightnessCCT) / 255;
+
+    return colour_with_brightness;
+}
+
 
   /**
    * UpdateInternalColour
@@ -955,6 +999,9 @@ void setSat255(uint8_t sat_new);
 
   uint16_t getCCT(){
     return _cct; // 153..500, or CT_MIN..CT_MAX
+  }
+  uint8_t getCCT255(){
+    return map(_cct, _cct_min_range, _cct_max_range, 0, 255);
   }
 
   uint16_t getCTifEnabled(){

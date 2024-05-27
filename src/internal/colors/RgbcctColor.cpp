@@ -210,6 +210,27 @@ void RgbcctColor::Lighten(uint8_t delta)
     }
 }
 
+/**
+ * @brief Use signed then constrain to stop rolling over causing colours to change
+ * 
+ * @param variance 
+ */
+void RgbcctColor::Variance(uint8_t variance)
+{
+    int16_t R_tmp = R + random(-variance, variance);
+    int16_t G_tmp = G + random(-variance, variance);
+    int16_t B_tmp = B + random(-variance, variance);
+    int16_t WW_tmp = WW + random(-variance, variance);
+    int16_t WC_tmp = WC + random(-variance, variance);
+
+    R = constrain(R_tmp, 0, 255);
+    G = constrain(G_tmp, 0, 255);
+    B = constrain(B_tmp, 0, 255);
+    WW = constrain(WW_tmp, 0, 255);
+    WC = constrain(WC_tmp, 0, 255);
+    
+}
+
 RgbcctColor RgbcctColor::LinearBlend(const RgbcctColor& left, const RgbcctColor& right, float progress)
 {
     return RgbcctColor( 
