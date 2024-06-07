@@ -210,26 +210,9 @@ void RgbcctColor::Lighten(uint8_t delta)
     }
 }
 
-/**
- * @brief Use signed then constrain to stop rolling over causing colours to change
- * 
- * @param variance 
- */
-void RgbcctColor::Variance(uint8_t variance)
-{
-    int16_t R_tmp = R + random(-variance, variance);
-    int16_t G_tmp = G + random(-variance, variance);
-    int16_t B_tmp = B + random(-variance, variance);
-    int16_t WW_tmp = WW + random(-variance, variance);
-    int16_t WC_tmp = WC + random(-variance, variance);
 
-    R = constrain(R_tmp, 0, 255);
-    G = constrain(G_tmp, 0, 255);
-    B = constrain(B_tmp, 0, 255);
-    WW = constrain(WW_tmp, 0, 255);
-    WC = constrain(WC_tmp, 0, 255);
-    
-}
+
+
 
 RgbcctColor RgbcctColor::LinearBlend(const RgbcctColor& left, const RgbcctColor& right, float progress)
 {
@@ -295,13 +278,13 @@ void RgbcctColor::setHsbColor(HsbColor hsb)
     if (_cct_rgb_linked) { setColorMode(LIGHT_MODE_RGB); }   // try to force RGB
     UpdateInternalColour();
 }
-    
-  void RgbcctColor::setHS_FullBrightness(HsbColor hsb, bool flag_hue_sat_stored_as_full_brightness_range)
-  {
+
+void RgbcctColor::setHS_FullBrightness(HsbColor hsb, bool flag_hue_sat_stored_as_full_brightness_range)
+{
 
     HsbColor hsb_new = hsb;
     if(flag_hue_sat_stored_as_full_brightness_range){
-      hsb_new.B = 1; // full
+        hsb_new.B = 1; // full
     }
     RgbColor rgb = hsb_new;
     R = rgb.R;
@@ -310,15 +293,8 @@ void RgbcctColor::setHsbColor(HsbColor hsb)
     _hue = hsb_new.H*360;
     _sat = hsb_new.S*255;
     addRGBMode();
-  }
-
-  
-//   void RgbcctColor::debug_print(char name*)
-//   {
-//     Serial.printf("%s = %d,%d,%d,%d,%d\n\r", name==nullptr?"":name, G, B, WC, WW);
-//   }
-
-
+    
+}
 
 
 #endif // ENABLE_DEVFEATURE_RGBCCT_MANIPULATION

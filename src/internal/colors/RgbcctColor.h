@@ -25,18 +25,12 @@ License along with NeoPixel.  If not, see
 -------------------------------------------------------------------------*/
 #pragma once
 
-// #include <Arduino.h>
-
-// #include "RgbwColor.h"
-// #include "lib8tion/math8.h"
-
 struct RgbColor;
-// struct RgbwColor;
 struct HslColor;
 struct HsbColor;
 
 /**
- * 2023: switch this around, the 4th pixel is most likely to be normal white, have option to set flag that reverses them
+ * 2024: Keep although its similar to RgbwwColor, as its easier to keep track of the additional features
  * 
  * 1) if it comes from another colour, it is assumed to be full colour and no change in brightness will be applied
  * 2) A function will be used when conversion on white (change in colour temp) needs to be calculated with argument of 0 to 255 on colour temp (as percentage)
@@ -44,18 +38,16 @@ struct HsbColor;
  * 
  * */
 
-
-// CT min and max
-#define CCT_MIN_DEFAULT 153          // 6500K
-#define CCT_MAX_DEFAULT 500          // 2000K
-
+#ifndef CCT_MIN_DEFAULT
+  #define CCT_MIN_DEFAULT 153          // 6500K
+#endif
+#ifndef CCT_MAX_DEFAULT
+  #define CCT_MAX_DEFAULT 500          // 2000K
+#endif
 
 // #define ENABLE_RGBCCT_DEBUG
 
 #define ENABLE_DEVFEATURE_RGBCCT_MANIPULATION
-
-
-
 
 // ------------------------------------------------------------------------
 // RgbcctColor represents a color object that is represented by Red, Green, Blue
@@ -252,7 +244,22 @@ struct RgbcctColor : RgbColorBase
     // NOTE: This is a simple linear change
     // delta - (0-255) the amount to lighten the color
     // ------------------------------------------------------------------------
-    void Variance(uint8_t delta);
+    void Variance(uint8_t variance)
+    {
+        int16_t R_tmp = R + random(-variance, variance);
+        int16_t G_tmp = G + random(-variance, variance);
+        int16_t B_tmp = B + random(-variance, variance);
+        int16_t WW_tmp = WW + random(-variance, variance);
+        int16_t WC_tmp = WC + random(-variance, variance);
+
+        R = constrain(R_tmp, 0, 255);
+        G = constrain(G_tmp, 0, 255);
+        B = constrain(B_tmp, 0, 255);
+        WW = constrain(WW_tmp, 0, 255);
+        WC = constrain(WC_tmp, 0, 255);
+        
+    }
+
 
     // ------------------------------------------------------------------------
     // LinearBlend between two colors by the amount defined by progress variable
@@ -973,6 +980,12 @@ void setSat255(uint8_t sat_new);
     UpdateInternalColour();
   }
 
+   void setCCT_255Range(uint16_t cct_255) 
+  {
+    uint16_t cct = map(cct_255, 0, 255, _cct_min_range, _cct_max_range);
+    setCCT(cct);
+  }
+  
    void setCCT(uint16_t cct) 
   {
     
